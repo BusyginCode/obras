@@ -1,58 +1,53 @@
 const fs = require('fs');
-// const kMeans = require('kmeans-js')
-const clusterMaker = require('clusters');
+const async = require('async');
+const rl = require("readline");
+const clusterMaker = require('./clusters');
 
 const parseNoisesFiles = (content) =>
   content.split(/\n\n/).filter(el => el).map(noise => ({
     class: noise.slice(-1),
-    array: noise.split(',').map(number => parseInt(number, 10)),
+    location: noise.split(',').map(number => parseInt(number, 10)),
   }))
 
-const log = (testFile) => {
-  testFile.map((noise, index) => {
-    console.log(`
-      ====================================================================
-      Test noise object ${noise.array} || Test Class ${noise.class}
-    `)
+const log = (points) => {
+  points.map((point, index) => {
+    console.log(`     ----------------------------------------------------
+     | Noise object: ${point.location} | Class: ${point.class} |`
+    )
+  })
+  console.log('     ----------------------------------------------------')
+}
+
+const logClusters = (clusters) => {
+  clusters.map((cluster, index) => {
+    console.log(`\n${index + 1}) Cluster\n   Centroid: ${cluster.centroid} \n   Points:`)
+    log(cluster.points)
   })
 }
 
-const text1 = fs.readFileSync('./noises44.txt', 'utf8');
+const prompts = rl.createInterface(process.stdin, process.stdout);
+let data;
 
-log(parseNoisesFiles(text1))
-
-const data = parseNoisesFiles(text1).map((n) => n.array);
-// const classes = parseNoisesFiles(text1).map((n) => n.class)
-
-console.log(data)
-console.log('\n\n')
-
-//number of clusters, defaults to undefined
-clusterMaker.k(3);
-
-//number of iterations (higher number gives more time to converge), defaults to 1000
-clusterMaker.iterations(750);
-
-//data from which to identify clusters, defaults to []
-clusterMaker.data(data);
-
-console.log(clusterMaker.clusters());
-
-
-
-// var km = new kMeans({
-//     K: 3
-// });
-//
-// km.cluster(data);
-// while (km.step()) {
-//     km.findClosestCentroids();
-//     km.moveCentroids();
-//
-//     console.log('\ncallback centroids ', km.centroids);
-//
-//     if(km.hasConverged()) break;
-// }
-//
-// console.log('Finished in:', km.currentIteration, ' iterations \n\n');
-// console.log(km.centroids, '\n\n' ,km.clusters);
+async.series([
+  (callback) => {
+    prompts.question("Enter file id(44): ", (fileId) => {
+      data = parseNoisesFiles(fs.readFileSync(`./noises${fileId || 44}.txt`, 'utf8'));
+      console.log('\nDefault noises file:\n')
+      log(data)
+      console.log('\n')
+      callback();
+    })
+  },
+  () => {
+    prompts.question("Enter clusters count(3): ", (clustersCount) => {
+      prompts.question("Enter iterations count(100): ", (iterationsCount) => {
+        console.log('\nClusters:\n')
+        clusterMaker.k(parseInt(clustersCount, 10) || 3);
+        clusterMaker.iterations(parseInt(iterationsCount, 10) || 100);
+        clusterMaker.data(data);
+        logClusters(clusterMaker.clusters());
+        prompts.close();
+      });
+    });
+  }
+]);

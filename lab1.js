@@ -1,8 +1,6 @@
 const fs = require('fs');
 const rl = require("readline");
 
-const noiseThreshold = 0.1;
-
 const firstSymbol = 2;
 const secondSymbol = 0;
 const thirdSymbol = 1;
@@ -23,13 +21,13 @@ const logSymbolArray = (array, title) => {
   console.log(` ${array.slice(0, 3)}\n ${array.slice(3, 6)}\n ${array.slice(6, 9)}\n ${array.slice(9, 12)}`)
 }
 
-const getNoiseExamplars = (count, symbolArray, symbol) => {
+const getNoiseExamplars = (count, symbolArray, symbol, threshold) => {
   const allNoisesArray = [];
   let noiseArray;
   for (let i = 0; i < count; i++) {
     noiseArray = [].concat(symbolArray);
     for (let j = 0; j < noiseArray.length; j++) {
-      if (random() < noiseThreshold) {
+      if (random() < (threshold || 0.1)) {
         if (noiseArray[j] === 0) {
           noiseArray[j] = 1;
         } else {
@@ -43,12 +41,12 @@ const getNoiseExamplars = (count, symbolArray, symbol) => {
   return allNoisesArray;
 }
 
-const writeToFile = (noises) => {
+const writeToFile = (noises, fileId) => {
   let fileContentString = '';
   noises.forEach(noise => {
     fileContentString += `${noise.slice(0, -1)} - ${noise.slice(-1)}\n\n`;
   })
-  fs.writeFile(`./noises${44}.txt`, fileContentString, (err) => {
+  fs.writeFile(`./noises${fileId || 55}.txt`, fileContentString, (err) => {
     if (err) return console.log(err);
     console.log("The file was saved!");
   });
@@ -56,8 +54,13 @@ const writeToFile = (noises) => {
 
 const compareRandom = () => Math.random() - 0.5;
 
-const pushToNoisesStash = (count, firstSymbolArray, firstSymbol) => {
-  const noises = getNoiseExamplars(parseInt(count, 10) || 0, firstSymbolArray, firstSymbol);
+const pushToNoisesStash = (count, firstSymbolArray, firstSymbol, threshold) => {
+  const noises = getNoiseExamplars(
+    parseInt(count, 10) || 0,
+    firstSymbolArray,
+    firstSymbol,
+    parseFloat(threshold, 10)
+  );
   allNoisesStash = allNoisesStash.concat(noises);
 }
 
@@ -71,16 +74,23 @@ console.log('\n\n');
 
 let prompts = rl.createInterface(process.stdin, process.stdout);
 
-prompts.question("Enter noise exemplars count for first symbol(2): ", (count) => {
-  pushToNoisesStash(count, firstSymbolArray, firstSymbol);
+prompts.question("Enter noise threshold(0.1): ", (threshold) => {
 
-  prompts.question("Enter noise exemplars count for second symbol(0): ", (count) => {
-    pushToNoisesStash(count, secondSymbolArray, secondSymbol);
+  prompts.question("Enter noise exemplars count for first symbol(2): ", (count) => {
+    pushToNoisesStash(count, firstSymbolArray, firstSymbol, threshold);
 
-    prompts.question("Enter noise exemplars count for third symbol(1): ", (count) => {
-      pushToNoisesStash(count, thirdSymbolArray, thirdSymbol);
-      writeToFile(allNoisesStash.sort(compareRandom))
-      prompts.close();
+    prompts.question("Enter noise exemplars count for second symbol(0): ", (count) => {
+      pushToNoisesStash(count, secondSymbolArray, secondSymbol, threshold);
+
+      prompts.question("Enter noise exemplars count for third symbol(1): ", (count) => {
+        pushToNoisesStash(count, thirdSymbolArray, thirdSymbol, threshold);
+
+        prompts.question("Enter fileId(55): ", (fileId) => {
+          writeToFile(allNoisesStash.sort(compareRandom), fileId)
+          prompts.close();
+        });
+      });
+
     });
 
   });

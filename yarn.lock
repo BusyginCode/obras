@@ -2,10 +2,12 @@
 # yarn lockfile v1
 
 
-clusters@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/clusters/-/clusters-0.0.4.tgz#f6d603139788b1443415fee42fe1d4ececea8379"
+async@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.6.1.tgz#b245a23ca71930044ec53fa46aa00a3e87c6a610"
+  dependencies:
+    lodash "^4.17.10"
 
-kmeans-js@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/kmeans-js/-/kmeans-js-0.1.2.tgz#5213df53d1fdfd6f9a3acced7081b15fe0d90498"
+lodash@^4.17.10:
+  version "4.17.10"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
