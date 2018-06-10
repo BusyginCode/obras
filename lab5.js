@@ -20,7 +20,10 @@ const log = (points) => {
 
 const logClusters = (clusters) => {
   clusters.map((cluster, index) => {
-    console.log(`\n${index + 1}) Cluster\n   Centroid: ${cluster.centroid} \n   Points:`)
+    const roundCluster = cluster.centroid.map((c) => Math.round(c))
+    console.log(`\n${index + 1}) Cluster\n   Centroid: ${cluster.centroid} \n   Median: ${roundCluster}\n`)
+    console.log(`   ${roundCluster.slice(0, 3)}\n   ${roundCluster.slice(3, 6)}\n   ${roundCluster.slice(6, 9)}\n   ${roundCluster.slice(9)}`)
+    console.log(`\n   Points:\n`)
     log(cluster.points)
   })
 }

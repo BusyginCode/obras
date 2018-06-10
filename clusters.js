@@ -1,4 +1,4 @@
-
+const shallowEqual = require('shallow-equal/arrays')
 
 /*
   * ===============================================================
@@ -49,7 +49,7 @@ const getterSetter = (initialValue, validator, isClustersData) => {
 
 const sumOfSquareDiffs = (oneVector, anotherVector) => {
   const squareDiffs = oneVector.map((component, i) => Math.pow(component - anotherVector[i], 2));
-  return squareDiffs.reduce((a, b) => a + b, 0);
+  return Math.sqrt(squareDiffs.reduce((a, b) => a + b, 0));
 };
 
 const mindex = (array) => {
@@ -87,8 +87,21 @@ const kmeans = (data, config) => {
 
   // update labels and centroid locations until convergence
   for (let iter = 0; iter < iterations; iter++) {
+    const lastCentroids = centroids;
     points.forEach((point) => point.updateLabel(centroids));
     centroids.forEach((centroid) => centroid.updateLocation(points));
+
+    console.log('iteration')
+    let sameCentroids;
+
+    for (let i in centroids) {
+      if (!shallowEqual(centroids[i].location(), lastCentroids[i].location())) {
+        sameCentroids = false;
+        break;
+      }
+    }
+
+    if (!sameCentroids) break;
   };
 
   return { points, centroids };

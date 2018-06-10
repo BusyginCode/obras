@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "async": "^2.6.1"
+    "async": "^2.6.1",
+    "shallow-equal": "^1.0.0",
+    "underscore": "^1.9.1",
+    "underscore-node": "^0.1.2"
   }
 }
